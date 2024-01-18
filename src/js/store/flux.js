@@ -1,45 +1,58 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
+			contacts : [
 				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
+					full_name:'',
+					email:'',
+					phone:'',
+					address:'',
+					id:'',
+					agenda_slug: "Wesley"
 				}
-			]
+			],
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
-			},
-			changeColor: (index, color) => {
-				//get the store
+			loadData:() => {
 				const store = getStore();
+				fetch("https://playground.4geeks.com/apis/fake/contact/agenda/Wesley")
+				.then((res)=> res.json())
+				.then((data)=> setStore({contacts: data}))
+				.catch((err)=> console.error(err))
+			},
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+		sendDataToIPA: async (contactData) =>{
+			try{
+					const response = await fetch('https://playground.4geeks.com/apis/fake/contact/agenda/Wesley',{
+						method:'POST',
+						headers:{
+							'Content-type':'application/json',
+						},
+						body:JSON.stringify(contactData),
+					})
+					.then((data)=>data.json())
+					.then((data)=> setFormData({contacts: data}))
+					
+				} catch(error){
+					console.error(error);
+				}
+			},			
 
-				//reset the global store
-				setStore({ demo: demo });
+		createAgenda: async (contactData) => {
+			const response = await fetch('https://playground.4geeks.com/apis/fake/contact/', {
+				method: 'POST',
+				headers:{
+					'Content-type':'application/json',
+				},
+					body:JSON.stringify({
+						...contactData,
+						agenda_slug:"Wesley"
+					})
+			})
+		}
 			}
 		}
 	};
-};
+
 
 export default getState;
